@@ -18,48 +18,44 @@ public class AddUserController {
 
     @PostMapping("/users")
     public ResponseEntity<String> addUser(@RequestBody UsersEntity usersEntity){
-        if (usersEntity.getCargo().isEmpty() || usersEntity.getRg().isEmpty() || usersEntity.getCpf().isEmpty() ||
-                usersEntity.getEmail().isEmpty() || usersEntity.getSenha().isEmpty()  || usersEntity.getSalario() == 0 ||
-                usersEntity.getSexo().isEmpty()
-        ){
-            String msgVazio = "Não pode haver campos vazios ou salário nulo";
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(msgVazio);
+        try {
+            UsersEntity addUsers = usersServices.addUser(usersEntity);
+            return ResponseEntity.status(HttpStatus.OK).body("Usuario criado \nID : " + addUsers.getId() + "Email : " + addUsers.getEmail());
+        }catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro ao adicionar o usuario. | Erro : " + e.getMessage());
         }
-
-        UsersEntity createdUser = usersServices.addUser(usersEntity);
-
-        if (createdUser != null){
-            return ResponseEntity.status(HttpStatus.OK).body(String.valueOf(createdUser));
-        }
-        String msgError = "Não foi possível criar o usuário";
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(msgError);
     }
 
-
     @GetMapping("/users")
-    @ResponseStatus(HttpStatus.OK)
-    public List<UsersEntity> getAllUsers(){
-        return usersServices.getAllUsers();
+    public ResponseEntity<List<UsersEntity>> getAllUsers(){
+        List<UsersEntity> users = usersServices.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/users/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<UsersEntity> getUserById(@PathVariable Long id){
         Optional<UsersEntity> user = usersServices.getUserById(id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/users/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<UsersEntity> updateUser(@PathVariable Long id, @RequestBody UsersEntity updatedUser){
         Optional<UsersEntity> updated = usersServices.updateUser(id, updatedUser);
-        return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+
+        if (updated.isPresent()){
+            return ResponseEntity.ok(updated.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/users/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteUser(@PathVariable Long id){
-        usersServices.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        boolean deleted = usersServices.deleteUser(id);
+        if (deleted){
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity(name = "usuarios")
 @Data
-@NoArgsConstructor
+@AllArgsConstructor
 public class UsersEntity {
 
     @Id
@@ -55,6 +55,10 @@ public class UsersEntity {
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDateTime dataregistro;
 
+    public UsersEntity() {
+
+    }
+
     @PrePersist
     public void prePersist(){
         StatusVerificacao();
@@ -68,9 +72,5 @@ public class UsersEntity {
             setStatus("FUNCIONARIO");
             return "FUNCIONARIO";
         }
-    }
-
-
-    public UsersEntity(Long id, String nome, String cargo, String cpf, String rg, String senha, String status, Double salario, String email, String telefone, String sexo, LocalDateTime dataregistro) {
     }
 }

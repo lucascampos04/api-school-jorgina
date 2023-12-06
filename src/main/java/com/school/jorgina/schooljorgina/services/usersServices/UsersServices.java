@@ -28,8 +28,25 @@ public class UsersServices {
     }
 
     public UsersEntity addUser(UsersEntity userEntity) {
-        userEntity.setDataregistro(LocalDateTime.now());
-        return userRepository.save(userEntity);
+       if (userRepository.findByRg(userEntity.getRg()).isPresent()){
+            throw new RuntimeException("RG já existe");
+       }
+
+       if (userRepository.findByCpf(userEntity.getCpf()).isPresent()){
+            throw new RuntimeException("CPF já existe");
+       }
+
+       if (userRepository.findByEmail(userEntity.getEmail()).isPresent()){
+            throw new RuntimeException("EMAIL já existe");
+       }
+
+       if (userRepository.findByTelefone(userEntity.getTelefone()).isPresent()){
+            throw new RuntimeException("Telefone já existe");
+       }
+
+       userEntity.setDataregistro(LocalDateTime.now());
+       return userRepository.save(userEntity);
+
     }
 
     public Optional<UsersEntity> updateUser(Long id, UsersEntity updatedUserEntity) {
@@ -41,7 +58,8 @@ public class UsersServices {
                 });
     }
 
-    public void deleteUser(Long id) {
+    public boolean deleteUser(Long id) {
         userRepository.deleteById(id);
+        return false;
     }
 }
