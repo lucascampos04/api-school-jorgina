@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -19,38 +20,57 @@ public class UsersEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotEmpty
+    
     private String nome;
 
-    @NotEmpty
+    
     private String cargo;
 
-    @NotEmpty
+    
     @Pattern(regexp = "^[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}\\-[0-9]{2}$")
     private String cpf;
 
-    @NotEmpty
+    
     @Pattern(regexp = "[0-9]{2}.[0-9]{3}.[0-9]{3}-[0-9Xx]{1}")
     private String rg;
 
-    @NotEmpty
+    
     private String senha;
 
-    @NotEmpty
+    
     private String status;
 
-    @NotEmpty
+    
     private Double salario;
 
-    @NotEmpty
+    
     private String email;
 
-    @NotEmpty
+    
     private String telefone;
 
-    @NotEmpty
+    
     private String sexo;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDateTime dataregistro;
+
+    @PrePersist
+    public void prePersist(){
+        StatusVerificacao();
+    }
+
+    public String StatusVerificacao(){
+        if (getSalario() == null){
+            setStatus("ALUNO");
+            return "ALUNO";
+        } else {
+            setStatus("FUNCIONARIO");
+            return "FUNCIONARIO";
+        }
+    }
+
+
+    public UsersEntity(Long id, String nome, String cargo, String cpf, String rg, String senha, String status, Double salario, String email, String telefone, String sexo, LocalDateTime dataregistro) {
+    }
 }
